@@ -1,0 +1,314 @@
+#!/bin/bash
+
+###################
+#        name: ux-src
+# description: SImple script to generate a UNIX-friendly structure from a RISC OS source tree
+#      author: Paolo Fabio Zaino
+#     license: Copyright by Paolo Fabio Zaino, all rights reserved
+#              distributed under CDDL v1.1
+#
+# Long description:
+# This script is used to generate a temporary (and not pushable) ux-src directory
+# that will be used to reconfigure your source code in a way that is "usable" by
+# Linux/BSD based tools for code analysis, SAST etc.
+#
+# Usage:
+# To use this script it's easy:
+# ux-src gen
+# the above will create ux-src in your local directory and will link all your source files
+# ina UNIXy way.
+# To remove ux-src directory type:
+# ux-src clean
+# And, if the directory exists in your pwd then it will be removed.
+####################
+
+declare -r cmd="$1"
+declare -r env="$2"
+curr_dir="$3"
+if [ "${curr_dir}" == "" ]
+then
+    curr_dir="$(pwd)"
+    declare -r curr_path="$(pwd)/src"
+else
+    declare -r curr_path="${curr_dir}/src"
+fi
+
+# Debug mode:
+debug=0
+
+# Display command usage:
+function usage()
+{
+    echo "Usage: ux-src [gen|clean] [path]"
+    echo "gen: generate ux-src directory"
+    echo "clean: remove ux-src directory"
+}
+
+# Link files from directory f_dir to directory ux-src with extension f_ext:
+function link_files()
+{
+    local src_dir="$1"
+    local dst_dir="$2"
+    local f_dir="$3"
+    local f_ext="$4"
+    if [ -d ${src_dir}/${f_dir} ]
+    then
+        for f in ${src_dir}/${f_dir}/*
+        do
+            if [ ! -f ${f} ]
+            then
+                continue
+            else
+                local fname="$(basename ${f})"
+                if [ "${env}" == "github" ]
+                then
+                    # GitHub Actions do not support symlinks:
+                    cp ${f} ${dst_dir}/${fname}.${f_ext} > /dev/null 2>&1
+                else
+                    ln -s ${f} ${dst_dir}/${fname}.${f_ext} > /dev/null 2>&1
+                fi
+            fi
+        done
+    fi
+}
+
+# Check path
+function check_path()
+{
+    local last_dir="$1"
+    if  [ "${last_dir}" == "c" ] || [ "${last_dir}" == "C" ] || \
+        [ "${last_dir}" == "h" ] || [ "${last_dir}" == "H" ] || \
+        [ "${last_dir}" == "cpp" ] || [ "${last_dir}" == "CPP" ] || \
+        [ "${last_dir}" == "cxx" ] || [ "${last_dir}" == "CXX" ] || \
+        [ "${last_dir}" == "cc" ] || [ "${last_dir}" == "CC" ] || \
+        [ "${last_dir}" == "c++" ] || [ "${last_dir}" == "C++" ] || \
+        [ "${last_dir}" == "hpp" ] || [ "${last_dir}" == "HPP" ] || \
+        [ "${last_dir}" == "hxx" ] || [ "${last_dir}" == "HXX" ] || \
+        [ "${last_dir}" == "s" ] || [ "${last_dir}" == "S" ] || \
+        [ "${last_dir}" == "Hdr" ] || [ "${last_dir}" == "hdr" ] || \
+        [ "${last_dir}" == "fth" ] || [ "${last_dir}" == "FTH" ] || \
+        [ "${last_dir}" == "p" ] || [ "${last_dir}" == "P" ] || \
+        [ "${last_dir}" == "pl" ] || [ "${last_dir}" == "PL" ] || \
+        [ "${last_dir}" == "bas" ] || [ "${last_dir}" == "BAS" ];
+    then
+        return 1
+    else
+        return 0
+    fi
+}
+
+# check for files with the known directory structure and link them in
+# the ux-src directory with their appropriate extension:
+function find_files_and_link() {
+    local src_dir="$1"
+    local dst_dir="$2"
+
+    # Link C files (if any):
+    link_files "${src_dir}" "${dst_dir}" "c" "c"
+    link_files "${src_dir}" "${dst_dir}" "C" "c"
+
+    # Link C++ files (if any):
+    link_files "${src_dir}" "${dst_dir}" "cpp" "cpp"
+    link_files "${src_dir}" "${dst_dir}" "CPP" "cpp"
+    link_files "${src_dir}" "${dst_dir}" "cxx" "cxx"
+    link_files "${src_dir}" "${dst_dir}" "CXX" "cxx"
+    link_files "${src_dir}" "${dst_dir}" "cc"  "cc"
+    link_files "${src_dir}" "${dst_dir}" "CC"  "cc"
+    link_files "${src_dir}" "${dst_dir}" "c++" "cpp"
+    link_files "${src_dir}" "${dst_dir}" "C++" "cpp"
+
+    # Link C++ header files (if any):
+    link_files "${src_dir}" "${dst_dir}" "hpp" "hpp"
+    link_files "${src_dir}" "${dst_dir}" "HPP" "hpp"
+    link_files "${src_dir}" "${dst_dir}" "hxx" "hxx"
+    link_files "${src_dir}" "${dst_dir}" "HXX" "hxx"
+
+    # Link C header files (if any):
+    link_files "${src_dir}" "${dst_dir}" "h" "h"
+    link_files "${src_dir}" "${dst_dir}" "H" "h"
+
+    # Link Assembler files (if any):
+    link_files "${src_dir}" "${dst_dir}" "s" "s"
+    link_files "${src_dir}" "${dst_dir}" "S" "s"
+    link_files "${src_dir}" "${dst_dir}" "Hdr" "s"
+
+    # Link Forth files (if any):
+    link_files "${src_dir}" "${dst_dir}" "fth" "fth"
+    link_files "${src_dir}" "${dst_dir}" "FTH" "fth"
+
+    # Link Pascal and Prolog files (if any):
+    link_files "${src_dir}" "${dst_dir}" "p" "p"
+    link_files "${src_dir}" "${dst_dir}" "P" "p"
+
+    # Link Perl files (if any):
+    link_files "${src_dir}" "${dst_dir}" "pl" "pl"
+    link_files "${src_dir}" "${dst_dir}" "PL" "pl"
+
+    # Link BASIC files (if any):
+    link_files "${src_dir}" "${dst_dir}" "bas" "bas"
+    link_files "${src_dir}" "${dst_dir}" "BAS" "bas"
+
+    # Find and link local files
+    # (that may also be called Makefile.unix etc.):
+    local last_dir="$(basename ${src_dir})"
+    check_path "${last_dir}"
+    local rval=$?
+    if [ $rval -eq 0 ];
+    then
+        for f in ${src_dir}/*
+        do
+            local fname="$(basename ${f})"
+            # Remove ,fd7 etc. from the filename:
+            fname="$(echo ${fname} | sed 's/,.*//')"
+            local fext="$(echo ${fname} | sed 's/^.*\.//')"
+            # Skip files with extensions: .o, .a, .so
+            if [ "${fext}" == "o" ] || [ "${fext}" == "a" ] || [ "${fext}" == "so" ] || [[ "${fext}" =~ "so\..*" ]];
+            then
+                continue
+            fi
+            if [ -f ${f} ];
+            then
+                if [ "$env" == "github" ]
+                then
+                    # GitHub Actions do not support symlinks:
+                    cp ${f} ${dst_dir}/${fname}
+                else
+                    ln -s ${f} ${dst_dir}/${fname}
+                fi
+            fi
+        done
+    fi
+
+}
+
+# recursively analyse subdirectories tree in ./src and generate all the correspondent directories in ./ux-src and exclude the typical c, h etc. RISC OS directories
+function gen_dirs()
+{
+    local dir_to_explore="${1:-$curr_dir/src}" # Use first argument as directory to explore, default to ${curr_dir}/src
+    for d in "${dir_to_explore}"/*
+    do
+        if [ ! -d "${d}" ]
+        then
+            local dname2="$(echo ${d} | sed 's/^.*\/src\///')"
+            find_files_and_link "${d}" "${curr_dir}/ux-src/${dname2}"
+        else
+            local dname="$(basename "${d}")"
+            check_path "${dname}"
+            local rval=$?
+            if [ $rval -eq 1 ];
+            then
+                local dname2="$(echo ${d} | sed 's/^.*\/src\///')"
+                find_files_and_link "${d}" "${curr_dir}/ux-src/${dname2}"
+            else
+                local dname2="$(echo ${d} | sed 's/^.*\/src\///')"
+                echo -n "Processing: ${dname2} ... "
+                local dname3="$(basename ${dname2})"
+                if [ "${dname3}" != "o" ];
+                then
+                    # Skip the o directory (it's not required in the UX world)
+                    # process everythign else:
+                    if [ ! -d "${curr_dir}/ux-src/${dname2}" ]
+                    then
+                        mkdir -p "${curr_dir}/ux-src/${dname2}"
+                        find_files_and_link "${d}" "${curr_dir}/ux-src/${dname2}"
+                    fi
+                    echo "ok"
+                    # Recursive call to explore the sub-directory
+                    gen_dirs "${d}"
+                else
+                    echo "skipped"
+                fi
+            fi
+        fi
+    done
+}
+
+# Check command line syntax:
+function check_cmd()
+{
+    if [ "$cmd" != "gen" ] && [ "$cmd" != "clean" ]
+    then
+        usage
+        exit 1
+    fi
+}
+
+#################
+# Main program
+#################
+
+# Check commadn line syntax:
+check_cmd
+
+# Check if we are in a RISC OS source tree:
+if [ ! -d ${curr_dir}/src ]
+then
+    echo "Error: it appears you are not in a RISC OS Community source tree"
+    exit 1
+fi
+
+# Run the command:
+if [ "$cmd" == "gen" ]
+then
+    echo "Generating ux-src directory in ${curr_dir}"
+
+    # Generate ux-src:
+    mkdir -p ${curr_dir}/ux-src
+
+    # Generate all the directories in ux-src:
+    gen_dirs "${curr_path}"
+
+    # Link main Makefiles:
+    if [ -f ${curr_dir}/src/Makefile* ]
+    then
+        for f in ${curr_dir}/src/Makefile*
+        do
+            fname="$(basename ${f})"
+            if [ "$env" == "github" ]
+            then
+                # GitHub Actions do not support symlinks:
+                cp ${f} ${curr_dir}/ux-src/${fname}
+            else
+                ln -s ${f} ${curr_dir}/ux-src/${fname}
+            fi
+        done
+    fi
+
+    # Link the Build Script for Unix:
+    if [ -f ${curr_dir}/src/MkGCC.sh ]
+    then
+        if [ "$env" == "github" ]
+        then
+            # GitHub Actions do not support symlinks:
+            cp ${curr_dir}/src/MkGCC.sh ${curr_dir}/ux-src/MkGCC.sh
+        else
+            ln -s ${curr_dir}/src/MkGCC.sh ${curr_dir}/ux-src/MkGCC.sh
+        fi
+    fi
+
+    if [ "$debug" == "1" ]
+    then
+       ls -l ${curr_dir}/ux-src
+    fi
+else
+    # Remove existing ux-src
+    if [ -d ${curr_dir}/ux-src ]
+    then
+        for f in ${curr_dir}/ux-src/*
+        do
+            if [ "$env" == "github" ]
+            then
+                # GitHub Actions do not support symlinks:
+                rm -f ${f}
+            else
+                if [ ! -d ${f} ]
+                then
+                    unlink ${f}
+                fi
+            fi
+        done
+        rm -rf ${curr_dir}/ux-src
+    fi
+fi
+
+exit $?
