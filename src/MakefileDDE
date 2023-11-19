@@ -1,0 +1,17 @@
+# Master Makefile
+
+OBJS=dtblib
+
+.PHONY: $(OBJS)
+$(OBJS):
+	dir @.$@
+	amu all_libs THROWBACK=-throwback -f MakefileDDE
+	up
+
+.PHONY: all
+all: $(OBJS)
+
+.PHONY: clean
+clean:
+#	dir @.$<
+#	@.MkCleanDDE

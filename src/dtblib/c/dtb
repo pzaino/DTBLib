@@ -54,7 +54,7 @@
 
 #include "krnllib.h"
 #include "strlib.h"
-#include "dtblib.h"
+#include "dtb.h"
 
 static void free_tree(struct dt_node* node) {
     if (node == NULL) return;

@@ -1,0 +1,27 @@
+# Makefile for dtblib
+
+COMPONENT = dtblib
+OBJS      = krnllib strlib dtb
+
+include CLibrary
+LIBS    =
+#LDFLAGS = -bin
+
+# Dynamic dependencies:
+
+oz.dtb:	c.dtb
+oz.dtb:	h.krnllib
+oz.dtb:	h.strlib
+oz.dtb:	h.krnllib
+oz.dtb:	h.dtb
+o.krnllib:	c.krnllib
+o.krnllib:	h.krnllib
+o.strlib:	c.strlib
+o.strlib:	h.krnllib
+o.strlib:	h.strlib
+o.strlib:	h.krnllib
+o.dtb:	c.dtb
+o.dtb:	h.krnllib
+o.dtb:	h.strlib
+o.dtb:	h.krnllib
+o.dtb:	h.dtb

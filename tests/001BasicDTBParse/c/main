@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-#include "dtblib.h"
+#include "LibDTB:dtblib.h"
 
 void test_simple_dtb() {
     const char* simple_dtb = load_dtb("simple.dtb"); // Function to load a DTB file

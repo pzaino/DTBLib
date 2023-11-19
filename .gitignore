@@ -5,4 +5,15 @@
 *.orig
 .DS_Store
 ux-src/
-
+\!LibDTB/a/**
+\!LibDTB/o/**
+\!LibDTB/so/**
+\!LibDTB/h/**
+src/**/o/**
+src/**/so/**
+src/**/a/**
+src/**/oz/**
+tests/**/o/**
+tests/**/so/**
+tests/**/a/**
+tests/**/oz/**
