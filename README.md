@@ -1,19 +1,28 @@
-# DTBLib
+# DTBLib: Device Tree Blob Parsing Library
 
-This is a library for reading and parsing Device Tree Blob files. It is written in ANSI C and without Standard C Library (SCL) dependencies.
+**Overview:**
 
-The reason for writing this library is that I needed a library for parsing DTB files in a project of mine, but I couldn't find any library that was written in ANSI C and without SCL dependencies. So I decided to write my own library.
+DTBLib is a specialized library designed for reading and parsing Device Tree Blob (DTB) files. Developed in strict adherence to ANSI C standards, this library is distinct for its lack of dependencies on the Standard C Library (SCL). This unique attribute makes DTBLib particularly suited for use in environments where standard library support is unavailable or undesirable.
 
-This library is specifically written to be used in the RISC OS Kernel project, but it can be used in any other project as well as long as you understand what krnllib does and doesn't do.
+**Background:**
 
-## Features
+The genesis of DTBLib was born out of a necessity encountered during a personal project. A need arose for a tool capable of parsing DTB files within the constraints of ANSI C and without relying on SCL. When existing solutions fell short of these specific requirements, the development of DTBLib was initiated to bridge this gap.
 
-* Written in ANSI C and without SCL dependencies.
-* Supports parsing DTB files.
-* Supports parsing DTB files with a size of up to 4MB.
-* Supports parsing DTB files with a maximum depth of 32 levels.
-* Supports parsing DTB files with a maximum string length of 256 characters.
-* Supports parsing DTB files with a maximum number of 65536 nodes.
+**Primary Use Case:**
+
+While the initial intention behind DTBLib was to serve as a component in the RISC OS Kernel — specifically within its Hardware Abstraction Layer (HAL) — the library's design is not exclusive to this use. Its creation was driven by an experimental endeavor to integrate DeviceTree support into RISC OS. Nevertheless, DTBLib's versatile and adaptable nature makes it a suitable choice for a wide range of projects that require DTB parsing capabilities under similar constraints.
+
+**Considerations for Usage:**
+
+Potential users should be aware of the following:
+
+DTBLib is tailor-made for environments similar to the RISC OS Kernel's HAL. Its functionality aligns with the requirements and limitations of such systems.
+A comprehensive understanding of the library's internal workings, particularly the functions and limitations of krnllib (the kernel library used by DTBLib), is crucial for effective utilization.
+The library is distributed under the Apache License, Version 2.0, ensuring a balance between open collaboration and respect for original authorship.
+
+**Contributions and Enhancements:**
+
+DTBLib is open to contributions from the developer community. Enhancements, bug fixes, and adaptations for broader use are all welcome. This collaborative approach is aimed at refining the library and extending its utility to a wider range of applications.
 
 ## Building
 
@@ -49,6 +58,8 @@ The library is very easy to use. You just need to include the header file and li
 
 ...
 ```
+
+For more information, please refer to the [documentation](doc/README.md).
 
 ## License
 
