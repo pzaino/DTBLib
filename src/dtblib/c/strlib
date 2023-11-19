@@ -4,7 +4,15 @@
 #include "krnllib.h"
 // #include "strlib.h"
 
-char* read_string(const char* data, int offset) {
+size_t str_len(const char* str) {
+    size_t length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
+    return length;
+}
+
+char* str_read(const char* data, int offset) {
     int length = 0;
     // Calculate the length of the string
     while (data[offset + length] != '\0') {

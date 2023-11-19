@@ -23,23 +23,39 @@ uint64_t krnl_bswap64(uint64_t val) {
 
 uint32_t read_uint32(const char* data, int offset) {
     uint32_t val;
-    memcpy(&val, data + offset, sizeof(uint32_t));
+    krnl_memcpy(&val, data + offset, sizeof(uint32_t));
     return krnl_bswap32(val);
 }
 
 uint64_t read_uint64(const char* data, int offset) {
     uint64_t val;
-    memcpy(&val, data + offset, sizeof(uint64_t));
+    krnl_memcpy(&val, data + offset, sizeof(uint64_t));
     return krnl_bswap64(val);
 }
 
 // Memory allocation functions
+
+void* krnl_memcpy(void* dest, const void* src, size_t n) {
+    #ifdef DEBUG_MEMORY
+    return memcpy(dest, src, n);
+    #else
+    char* d = (char*)dest;
+    const char* s = (const char*)src;
+
+    for (size_t i = 0; i < n; i++) {
+        d[i] = s[i];
+    }
+    return dest;
+    #endif
+}
 
 void* krnl_malloc(size_t size) {
     #ifdef DEBUG_MEMORY
     return malloc(size);
     #else
     // Add your custom implementation here
+    (void)size;
+    return NULL;
     #endif
 }
 
@@ -48,6 +64,9 @@ void* krnl_calloc(size_t num, size_t size) {
     return calloc(num, size);
     #else
     // Add your custom implementation here
+    (void)num;
+    (void)size;
+    return NULL;
     #endif
 }
 
@@ -56,6 +75,9 @@ void* krnl_realloc(void* ptr, size_t size) {
     return realloc(ptr, size);
     #else
     // Add your custom implementation here
+    (void)ptr;
+    (void)size;
+    return NULL;
     #endif
 }
 
@@ -64,7 +86,7 @@ void krnl_free(void* ptr) {
     free(ptr);
     #else
     // Add your custom implementation here
+    (void)ptr;
     #endif
 }
 
-// String functions

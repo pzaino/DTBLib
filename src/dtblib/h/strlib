@@ -4,6 +4,9 @@
 #ifndef STRLIB_H_
 #define STRLIB_H_
 
-char* read_string(const char* data, int offset);
+#include "krnllib.h"
+
+size_t str_len(const char* str);
+char* str_read(const char* data, int offset);
 
 #endif /* STRLIB_H_ */

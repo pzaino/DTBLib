@@ -17,12 +17,12 @@ static void free_tree(struct dt_node* node) {
 }
 
 static inline int hndl_fdt_begin_node(struct dt_node** current_node, const char* dtb_data, int* offset) {
-    char* node_name = read_string(dtb_data, *offset);
+    char* node_name = str_read(dtb_data, *offset);
     if (!node_name) {
         return -1;
     }
     // Move offset to the end of the string
-    *offset += strlen(node_name) + 1;
+    *offset += str_len(node_name) + 1;
 
     struct dt_node* new_node = krnl_malloc(sizeof(struct dt_node));
     if (new_node == NULL) {
@@ -57,7 +57,7 @@ static inline int hndl_fdt_prop(struct dt_node* current_node, const char* dtb_da
     uint32_t name_offset = read_uint32(dtb_data, *offset);
     *offset += sizeof(uint32_t);
 
-    char* prop_name = read_string(strings_block, name_offset);
+    char* prop_name = str_read(strings_block, name_offset);
     if (!prop_name) {
         return -1; // Error reading property name
     }
@@ -68,7 +68,7 @@ static inline int hndl_fdt_prop(struct dt_node* current_node, const char* dtb_da
         return -1; // Error allocating memory for property value
     }
 
-    memcpy(prop_value, dtb_data + *offset, prop_len);
+    krnl_memcpy(prop_value, dtb_data + *offset, prop_len);
     *offset += prop_len;
 
     struct dt_property* new_prop = krnl_malloc(sizeof(struct dt_property));
@@ -119,9 +119,9 @@ static int validate_dtb_header(const char* dtb_data) {
 }
 
 struct dt_node* parse_dtb(
-    const char* dtb_data, 
+    const char* dtb_data,
     const char* strings_block,
-    int offset 
+    int offset
 ) {
     // Validate DTB header
     if (validate_dtb_header(dtb_data) != 0) {

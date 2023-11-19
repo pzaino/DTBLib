@@ -4,6 +4,13 @@
 #ifndef DTBLIB_H_
 #define DTBLIB_H_
 
+#define FDT_MAGIC 0xd00dfeed
+#define FDT_BEGIN_NODE 1
+#define FDT_END_NODE 2
+#define FDT_PROP 3
+#define FDT_NOP 4
+#define FDT_END 9
+
 struct dt_node {
     char* name;                   // Name of the node
     struct dt_property* props;    // Pointer to the first property of the node
@@ -20,6 +27,10 @@ struct dt_property {
     struct dt_property* next;     // Pointer to the next property
 };
 
-struct dt_node* parse_dtb(const char* dtb_data);
+struct dt_node* parse_dtb(
+    const char* dtb_data,
+    const char* strings_block,
+    int offset
+);
 
 #endif /* DTBLIB_H_ */

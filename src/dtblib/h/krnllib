@@ -6,15 +6,35 @@
 
 // Define all the types we need
 #ifndef DEBUG_MEMORY
+
+    #ifndef NULL
+    #define NULL ((void *)0)
+    #endif // NULL
+
+    #define TRUE 1
+    #define true 1
+    #define FALSE 0
+    #define false 0
+
+    #ifndef SIZE_T_
+    #define SIZE_T_
     #if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) // Add other 64-bit architectures as needed
     typedef unsigned long long size_t;
     #else
     typedef unsigned int size_t;
     #endif
+    #endif // SIZE_T_
 
+    #ifndef UINT32_T_
+    #define UINT32_T_
     typedef unsigned int uint32_t;
+    #endif // UINT32_T_
 
+    #ifndef UINT64_T_
+    #define UINT64_T_
     typedef unsigned long long uint64_t;
+    #endif // UINT64_T_
+
 #endif // DEBUG_MEMORY
 
 #ifdef DEBUG_MEMORY
@@ -34,6 +54,7 @@ uint64_t read_uint64(const char* data, int offset);
 void* krnl_malloc(size_t size);
 void* krnl_calloc(size_t num, size_t size);
 void* krnl_realloc(void* ptr, size_t size);
-void krnl_free(void* ptr);
+void  krnl_free(void* ptr);
+void* krnl_memcpy(void* dest, const void* src, size_t n);
 
 #endif /* KRNLLIB_H_ */
