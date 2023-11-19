@@ -1,0 +1,51 @@
+| Generic Library builder for DDE on RISC OS
+| by Paolo Fabio Zaino
+
+echo ++++++++++++++++++++++++
+echo ++ Building using DDE ++
+echo ++++++++++++++++++++++++
+
+Set Build$Root <Obey$Dir>
+
+WimpSlot -min 6144K
+
+echo ---------------------
+echo Building the Library:
+echo ---------------------
+
+Dir <Build$Root>.src
+amu all THROWBACK=-throwback -f MakeFileDDE
+
+up
+
+IfThere @.!LibDTB   Then Else CDir @.!LibDTB
+IfThere @.!LibDTB.o Then Else CDir @.!LibDTB.o
+IfThere @.!LibDTB.a Then Else CDir @.!LibDTB.a
+IfThere @.!LibDTB.h Then Else CDir @.!LibDTB.h
+
+IFthere @.src.dtblib.o.dtblib   Then copy @.src.dtblib.o.dtblib @.!LibDTB.o.dtblib ~C N
+IFthere @.src.dtblib.o.dtblibzm Then copy @.src.dtblib.o.dtblibzm @.!LibDTB.o.dtblibzm ~C N
+IFthere @.src.dtblib.h.dtb      Then copy @.src.dtblib.h.dtb @.!LibDTB.h.dtblib ~C N
+
+echo
+echo ---------------------
+echo
+
+echo ---------------------
+echo Building Tests:
+echo ---------------------
+
+Dir <Build$Root>.tests
+
+Set CanRunTests$Flag 0
+IfThere @.^.!LibDTB.o.dtblib Then Set CanRunTests$Flag 1
+If "<CanRunTests$Flag>" = "1" Then IfThere @.MakefileDDE Then Set CanRunTests$Flag 2
+If "<CanRunTests$Flag>" = "2" Then make all THROWBACK=-throwback -f MakeFileDDE
+
+Unset CanRunTests$Flag
+
+echo
+echo ---------------------
+echo
+
+Dir <Build$Root>

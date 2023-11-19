@@ -1,0 +1,102 @@
+# Variables
+ifeq ($(OS),)
+  OS := RISC_OS
+endif
+
+# Set variables based on the detected OS
+ifeq ($(OS),Linux)
+  CD_CMD = cd
+  RM_CMD = rm -f
+  DIR_SYM =/
+  LOCAL_DIR=.
+  UP_DIR=..
+  EXT_SYM =.
+  MAKE_FLAGS = -j4
+else ifeq ($(OS),Darwin) # macOS
+  CD_CMD = cd
+  RM_CMD = rm -f
+  DIR_SYM =/
+  LOCAL_DIR=.
+  UP_DIR=..
+  EXT_SYM =.
+  MAKE_FLAGS = -j4
+else ifeq ($(OS),Windows)
+  CD_CMD = cd
+  RM_CMD = del
+  DIR_SYM =/
+  LOCAL_DIR=.
+  UP_DIR=..
+  EXT_SYM =.
+  MAKE_FLAGS = -j4
+else ifeq ($(OS),RISC_OS)
+  CD_CMD = cdir
+  RM_CMD = remove
+  DIR_SYM =.
+  LOCAL_DIR=@
+  UP_DIR=^
+  EXT_SYM =/
+  MAKE_FLAGS = -mthrowback
+else
+  $(error Unknown operating system: $(UNAME))
+endif
+
+CC = gcc
+MAKE = make
+
+LIB_DIR = libs
+# If needed add more libraries in the following format:
+# LIBS   = $(LIB_DIR)$(DIR_SYM)lib1 $(LIB_DIR)$(DIR_SYM)lib2 $(LIB_DIR)$(DIR_SYM)lib3
+LIBS     =
+LIB_NAME = DTBLib
+MAIN_DIR = DTBLib
+MAIN_LIB = $(LIB_NAME)
+ifeq ($(OS),RISC_OS)
+  MAIN_SRC = c.$(LIB_NAME)
+  MAIN_OBJ = o.$(LIB_NAME)
+else
+  MAIN_SRC = $(LIB_NAME).c
+  MAIN_OBJ = $(LIB_NAME).o
+endif
+
+# Setup CFLAGS
+CFLAGS  = -Wall -Wextra -pedantic
+CFLAGS += -ansi -std=c99 -Wno-gnu-label-as-value
+# reduce code size:
+#CFLAGS += -Os -ffunction-sections -fdata-sections -flto
+# compile for maximum speed
+CFLAGS += -Ofast -fno-stack-protector -fno-strict-aliasing -fomit-frame-pointer -flto
+#LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -flto
+
+# Add -I flags for each library to CFLAGS
+CFLAGS += -I$(LIB_DIR) $(foreach dir,$(LIBS),-I$(dir) -I$(dir)$(DIR_SYM)src)
+
+# Targets
+all: $(MAIN_LIB)
+
+# Building the main application
+$(MAIN_LIB): libs
+	$(MAKE) -C $(LOCAL_DIR)$(DIR_SYM)$(MAIN_DIR) all OS=$(OS) -f MakefileGCC
+
+# Building the libraries by invoking their own Makefiles
+libs: $(LIBS)
+
+$(LIBS):
+	$(MAKE) -C $(LOCAL_DIR)$(DIR_SYM)$@$(DIR_SYM)src all OS=$(OS) -f MakefileGCC
+
+# To initialize and update git submodules
+init-submodules:
+	git submodule init
+	git submodule update
+
+# Clean up
+clean:
+	$(RM_CMD) $(MAIN_LIB)
+	for dir in $(LIBS); do \
+		($(CD_CMD) $$dir && $(MAKE) clean OS=$(OS) -f MakefileGCC); \
+	done
+
+# To force rebuild everything
+rebuild: clean all
+
+.PHONY: all clean rebuild init-submodules libs $(LIBS)

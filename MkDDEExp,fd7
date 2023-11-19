@@ -1,0 +1,4 @@
+Dir <Obey$Dir>
+WimpSlot -min 2048K
+amu export_hdrs LIBDIR=Export -f MakeFileDDE
+amu export_libs LIBDIR=Export THROWBACK=-throwback -f MakeFileDDE

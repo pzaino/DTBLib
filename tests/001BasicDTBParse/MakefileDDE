@@ -1,10 +1,13 @@
-# Makefile for utilHelloWorld
+# Makefile for test
 
-COMPONENT = utilHW
+COMPONENT = BasicDTBParse
 OBJS      = main
 
 include CUtil
-UTIL_LIBS = LibuCLib:o.entry LibuCLib:o.uCLib
+UTIL_LIBS = LibDTB:o.dtblib
 LDFLAGS   = -util
 
 # Dynamic dependencies:
+
+o.main:	c.main
+o.main:	LibDTB:h.dtblib

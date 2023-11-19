@@ -1,0 +1,6 @@
+Dir <Obey$Dir>.src
+WimpSlot -min 16384K
+make clean -f MakeFileGCC
+
+
+

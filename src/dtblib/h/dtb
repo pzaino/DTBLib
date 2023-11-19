@@ -52,35 +52,39 @@
  * the above URL.
  */
 
-#include "krnllib.h"
-#include "strlib.h"
+#ifndef DTBLIB_H_
+#define DTBLIB_H_
 
-size_t str_len(const char* str) {
-    size_t length = 0;
-    while (str[length] != '\0') {
-        length++;
-    }
-    return length;
-}
+#define FDT_MAGIC 0xd00dfeed
+#define FDT_BEGIN_NODE 1
+#define FDT_END_NODE 2
+#define FDT_PROP 3
+#define FDT_NOP 4
+#define FDT_END 9
 
-char* str_read(const char* data, int offset) {
-    int length = 0;
-    // Calculate the length of the string
-    while (data[offset + length] != '\0') {
-        length++;
-    }
+#define MIN_DTB_VERSION 1
+#define MAX_DTB_VERSION 17
 
-    // Allocate memory for the string including the null terminator
-    char* str = (char*)krnl_malloc(length + 1);
-    if (str == NULL) {
-        return NULL; // Handle memory allocation failure
-    }
+struct dt_node {
+    char* name;                   // Name of the node
+    struct dt_property* props;    // Pointer to the first property of the node
+    int prop_count;               // Count of properties in the node
+    struct dt_node* parent;       // Pointer to the parent node (NULL for root)
+    struct dt_node* children;     // Pointer to the first child node
+    struct dt_node* next_sibling; // Pointer to the next sibling node
+};
 
-    // Copy the string
-    for (int i = 0; i < length; ++i) {
-        str[i] = data[offset + i];
-    }
-    str[length] = '\0'; // Null-terminate the string
+struct dt_property {
+    char* name;                   // Name of the property
+    void* value;                  // Pointer to the value of the property
+    unsigned int size;            // Size of the value in bytes
+    struct dt_property* next;     // Pointer to the next property
+};
 
-    return str;
-}
+struct dt_node* parse_dtb(
+    const char* dtb_data,
+    const char* strings_block,
+    int offset
+);
+
+#endif /* DTBLIB_H_ */

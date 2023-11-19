@@ -1,0 +1,6 @@
+| Lib DTB for RISC OS
+| by Paolo Fabio Zaino 2023
+
+IconSprites <Obey$Dir>.!Sprites
+Set LibDTB$Dir <Obey$Dir>
+Set LibDTB$Path <LibDTB$Dir>.
