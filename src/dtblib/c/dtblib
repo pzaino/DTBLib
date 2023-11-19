@@ -105,15 +105,23 @@ static int validate_dtb_header(const char* dtb_data) {
     }
 
     // Check DTB size
+    /*
     uint32_t total_size = read_uint32(dtb_data, 4);
-    // Add checks for reasonable total_size
+    if (total_size > MAX_DTB_SIZE || total_size < MIN_DTB_SIZE) {
+        return -1; // DTB size is unreasonable
+    }
+    */
 
     // Check version and last compatible version
     uint32_t version = read_uint32(dtb_data, 8);
     uint32_t last_comp_version = read_uint32(dtb_data, 12);
-    // Add version-specific checks
+    if (version < MIN_DTB_VERSION || version > MAX_DTB_VERSION ||
+        last_comp_version > version) {
+        return -1; // Incompatible DTB version
+    }
 
-    // Additional header validations as necessary
+    // TODO: Additional header validations as necessary
+    // Example: Check for structure block and strings block offsets within the total size
 
     return 0;
 }

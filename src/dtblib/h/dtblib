@@ -11,6 +11,9 @@
 #define FDT_NOP 4
 #define FDT_END 9
 
+#define MIN_DTB_VERSION 1
+#define MAX_DTB_VERSION 17
+
 struct dt_node {
     char* name;                   // Name of the node
     struct dt_property* props;    // Pointer to the first property of the node
