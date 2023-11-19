@@ -12,7 +12,7 @@
         clock-frequency = <1000000>; // 1MHz
     };
 
-    memory@0 {
+    memory@1 {
         compatible = "vendor,simple-memory";
         device_type = "memory";
         reg = <0x00000000 0x10000>; // Starting at 0x00000000 with a size of 64KB
