@@ -1,0 +1,111 @@
+/*
+ * DTBLib: Device Tree Blob Parsing Library
+ *
+ * Copyright (c) 2023 by Paolo Fabio Zaino, all rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Limitations:
+ * - Redistribution and use of this software in source and binary
+ *   forms, with or without modification, are permitted provided that
+ *   the following conditions are met:
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions, and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions, and the following
+ *     disclaimer in the documentation and/or other materials
+ *     provided with the distribution.
+ *   - Neither the name of Paolo Fabio Zaino, nor the names
+ *     of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written
+ *     permission.
+ *   - Users of this software are prohibited from misrepresenting
+ *     themselves as the authors or original contributors of this
+ *     software.
+ *
+ * This software is provided by the copyright holders and contributors
+ * "as is" and any express or implied warranties, including, but not
+ * limited to, the implied warranties of merchantability and fitness
+ * for a particular purpose are disclaimed. In no event shall the
+ * copyright owner or contributors be liable for any direct,
+ * indirect, incidental, special, exemplary, or consequential damages
+ * (including, but not limited to, procurement of substitute goods or
+ * services; loss of use, data, or profits; or business interruption)
+ * however caused and on any theory of liability, whether in
+ * contract, strict liability, or tort (including negligence or
+ * otherwise) arising in any way out of the use of this software,
+ * even if advised of the possibility of such damage.
+ *
+ * For more details and the full text of the license, refer to the
+ * Apache 2.0 License file included with this project or available at
+ * the above URL.
+ */
+
+#ifndef KRNLLIB_H_
+#define KRNLLIB_H_
+
+// Define all the types we need
+#ifndef DEBUG_MEMORY
+
+    #ifndef NULL
+    #define NULL ((void *)0)
+    #endif // NULL
+
+    #define TRUE 1
+    #define true 1
+    #define FALSE 0
+    #define false 0
+
+    #ifndef SIZE_T_
+    #define SIZE_T_
+    #if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) // Add other 64-bit architectures as needed
+    typedef unsigned long long size_t;
+    #else
+    typedef unsigned int size_t;
+    #endif
+    #endif // SIZE_T_
+
+    #ifndef UINT32_T_
+    #define UINT32_T_
+    typedef unsigned int uint32_t;
+    #endif // UINT32_T_
+
+    #ifndef UINT64_T_
+    #define UINT64_T_
+    typedef unsigned long long uint64_t;
+    #endif // UINT64_T_
+
+#endif // DEBUG_MEMORY
+
+#ifdef DEBUG_MEMORY
+#include <stdlib.h>
+#include <string.h>
+#endif
+
+// Define endianess handling functions:
+uint32_t krnl_bswap32(uint32_t val);
+uint64_t krnl_bswap64(uint64_t val);
+
+uint32_t read_uint32(const char* data, int offset);
+uint64_t read_uint64(const char* data, int offset);
+
+// Memory allocation functions
+
+void* krnl_malloc(size_t size);
+void* krnl_calloc(size_t num, size_t size);
+void* krnl_realloc(void* ptr, size_t size);
+void  krnl_free(void* ptr);
+void* krnl_memcpy(void* dest, const void* src, size_t n);
+
+#endif /* KRNLLIB_H_ */

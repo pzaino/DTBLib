@@ -1,0 +1,24 @@
+/*
+*/
+
+#include <assert.h>
+
+#include "dtblib.h"
+
+void test_simple_dtb() {
+    const char* simple_dtb = load_dtb("simple.dtb"); // Function to load a DTB file
+    struct dt_node* root = parse_dtb(simple_dtb);
+
+    assert(root != NULL); // Replace with your own assert function
+    assert(strcmp(root->name, "root_node_name") == 0);
+
+    // Further checks for children, properties, etc.
+
+    free_tree(root); // Clean up
+    free_dtb(simple_dtb); // Function to free DTB data
+}
+
+int main() {
+    test_simple_dtb();
+    return 0;
+}

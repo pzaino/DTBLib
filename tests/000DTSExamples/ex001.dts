@@ -1,0 +1,21 @@
+/dts-v1/;
+
+/ {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    model = "my-device-tree";
+    compatible = "vendor,model";
+
+    cpu@0 {
+        compatible = "vendor,simple-cpu";
+        reg = <0x00 0x00>;
+        clock-frequency = <1000000>; // 1MHz
+    };
+
+    memory@1 {
+        compatible = "vendor,simple-memory";
+        device_type = "memory";
+        reg = <0x00000000 0x10000>; // Starting at 0x00000000 with a size of 64KB
+    };
+};
+

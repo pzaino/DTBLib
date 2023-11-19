@@ -1,0 +1,10 @@
+# Makefile for utilHelloWorld
+
+COMPONENT = utilHW
+OBJS      = main
+
+include CUtil
+UTIL_LIBS = LibuCLib:o.entry LibuCLib:o.uCLib
+LDFLAGS   = -util
+
+# Dynamic dependencies:

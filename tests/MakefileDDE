@@ -1,0 +1,18 @@
+# Master Makefile
+
+TESTS=001BasicDTBParse
+
+.PHONY: $(TESTS)
+$(TESTS):
+	dir @.$@
+	amu all THROWBACK=-throwback -f MakefileDDE
+	RunMe
+	back
+
+.PHONY: all
+all: $(TESTS)
+
+.PHONY: clean
+clean:
+#	dir @.$<
+#	@.MkCleanDDE
