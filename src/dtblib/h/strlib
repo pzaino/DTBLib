@@ -1,0 +1,9 @@
+/*
+*/
+
+#ifndef STRLIB_H_
+#define STRLIB_H_
+
+char* read_string(const char* data, int offset);
+
+#endif /* STRLIB_H_ */

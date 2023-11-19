@@ -1,0 +1,39 @@
+/*
+*/
+
+#ifndef KRNLLIB_H_
+#define KRNLLIB_H_
+
+// Define all the types we need
+#ifndef DEBUG_MEMORY
+    #if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) // Add other 64-bit architectures as needed
+    typedef unsigned long long size_t;
+    #else
+    typedef unsigned int size_t;
+    #endif
+
+    typedef unsigned int uint32_t;
+
+    typedef unsigned long long uint64_t;
+#endif // DEBUG_MEMORY
+
+#ifdef DEBUG_MEMORY
+#include <stdlib.h>
+#include <string.h>
+#endif
+
+// Define endianess handling functions:
+uint32_t krnl_bswap32(uint32_t val);
+uint64_t krnl_bswap64(uint64_t val);
+
+uint32_t read_uint32(const char* data, int offset);
+uint64_t read_uint64(const char* data, int offset);
+
+// Memory allocation functions
+
+void* krnl_malloc(size_t size);
+void* krnl_calloc(size_t num, size_t size);
+void* krnl_realloc(void* ptr, size_t size);
+void krnl_free(void* ptr);
+
+#endif /* KRNLLIB_H_ */

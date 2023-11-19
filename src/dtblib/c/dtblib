@@ -1,0 +1,187 @@
+/*
+*/
+
+#include "krnllib.h"
+#include "strlib.h"
+#include "dtblib.h"
+
+static void free_tree(struct dt_node* node) {
+    if (node == NULL) return;
+
+    free_tree(node->children);
+    free_tree(node->next_sibling);
+
+    krnl_free(node->name);
+    // Free properties here as well
+    krnl_free(node);
+}
+
+static inline int hndl_fdt_begin_node(struct dt_node** current_node, const char* dtb_data, int* offset) {
+    char* node_name = read_string(dtb_data, *offset);
+    if (!node_name) {
+        return -1;
+    }
+    // Move offset to the end of the string
+    *offset += strlen(node_name) + 1;
+
+    struct dt_node* new_node = krnl_malloc(sizeof(struct dt_node));
+    if (new_node == NULL) {
+        krnl_free(node_name);
+        return -1;
+    }
+
+    new_node->name = node_name;
+    new_node->parent = *current_node;
+    new_node->children = NULL;
+    new_node->next_sibling = NULL;
+    new_node->props = NULL;
+
+    // Link new_node into the tree
+    if ((*current_node)->children == NULL) {
+        (*current_node)->children = new_node;
+    } else {
+        struct dt_node* last_child = (*current_node)->children;
+        while (last_child->next_sibling != NULL) {
+            last_child = last_child->next_sibling;
+        }
+        last_child->next_sibling = new_node;
+    }
+
+    *current_node = new_node;
+    return 0;
+}
+
+static inline int hndl_fdt_prop(struct dt_node* current_node, const char* dtb_data, int* offset, const char* strings_block) {
+    uint32_t prop_len = read_uint32(dtb_data, *offset);
+    *offset += sizeof(uint32_t);
+    uint32_t name_offset = read_uint32(dtb_data, *offset);
+    *offset += sizeof(uint32_t);
+
+    char* prop_name = read_string(strings_block, name_offset);
+    if (!prop_name) {
+        return -1; // Error reading property name
+    }
+
+    void* prop_value = krnl_malloc(prop_len);
+    if (!prop_value) {
+        krnl_free(prop_name);
+        return -1; // Error allocating memory for property value
+    }
+
+    memcpy(prop_value, dtb_data + *offset, prop_len);
+    *offset += prop_len;
+
+    struct dt_property* new_prop = krnl_malloc(sizeof(struct dt_property));
+    if (!new_prop) {
+        krnl_free(prop_name);
+        krnl_free(prop_value);
+        return -1; // Error allocating memory for dt_property
+    }
+
+    new_prop->name = prop_name;
+    new_prop->value = prop_value;
+    new_prop->size = prop_len;
+    new_prop->next = NULL;
+
+    // Attach new_prop to the current_node's properties
+    if (current_node->props == NULL) {
+        current_node->props = new_prop;
+    } else {
+        struct dt_property* last_prop = current_node->props;
+        while (last_prop->next != NULL) {
+            last_prop = last_prop->next;
+        }
+        last_prop->next = new_prop;
+    }
+
+    return 0;
+}
+
+static int validate_dtb_header(const char* dtb_data) {
+    // Verify Magic Number
+    uint32_t magic = read_uint32(dtb_data, 0);
+    if (magic != FDT_MAGIC) {
+        return -1; // Invalid magic number
+    }
+
+    // Check DTB size
+    uint32_t total_size = read_uint32(dtb_data, 4);
+    // Add checks for reasonable total_size
+
+    // Check version and last compatible version
+    uint32_t version = read_uint32(dtb_data, 8);
+    uint32_t last_comp_version = read_uint32(dtb_data, 12);
+    // Add version-specific checks
+
+    // Additional header validations as necessary
+
+    return 0;
+}
+
+struct dt_node* parse_dtb(
+    const char* dtb_data, 
+    const char* strings_block,
+    int offset 
+) {
+    // Validate DTB header
+    if (validate_dtb_header(dtb_data) != 0) {
+        return NULL;
+    }
+
+    // Allocate root node
+    struct dt_node* root_node = krnl_malloc(sizeof(struct dt_node));
+    if (!root_node) {
+        // Handle allocation error
+        return NULL;
+    }
+
+    // Initialize root node
+    root_node->name = NULL; // Root node usually doesn't have a name
+    root_node->parent = NULL;
+    root_node->children = NULL;
+    root_node->next_sibling = NULL;
+    root_node->props = NULL;
+
+    // Parse DTB
+    struct dt_node* current_node = root_node;
+    int rval = 0;
+
+    while (true) {
+        uint32_t token = read_uint32(dtb_data, offset);
+        offset += sizeof(uint32_t);
+
+        switch (token) {
+            case FDT_BEGIN_NODE:
+                rval = hndl_fdt_begin_node(&current_node, dtb_data, &offset);
+                if (rval != 0) {
+                    // Handle error
+                    free_tree(root_node); // Assuming free_tree is a function that frees the entire tree
+                    return NULL;
+                }
+                break;
+            case FDT_END_NODE:
+                current_node = current_node->parent;
+                break;
+            case FDT_PROP:
+                rval = hndl_fdt_prop(current_node, dtb_data, &offset, strings_block); // strings_block is the start of the strings block
+                if (rval != 0) {
+                    // Handle error
+                    free_tree(root_node);
+                    return NULL;
+                }
+                break;
+            case FDT_NOP:
+                // NOP handling (usually just skip)
+                break;
+            case FDT_END:
+                if (current_node == root_node) {
+                    return NULL; // Error: root node not closed
+                }
+                return root_node;
+            default:
+                // Handle unexpected token
+                free_tree(root_node);
+                return NULL;
+        }
+    }
+}

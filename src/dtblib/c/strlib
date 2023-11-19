@@ -1,0 +1,27 @@
+/*
+*/
+
+#include "krnllib.h"
+// #include "strlib.h"
+
+char* read_string(const char* data, int offset) {
+    int length = 0;
+    // Calculate the length of the string
+    while (data[offset + length] != '\0') {
+        length++;
+    }
+
+    // Allocate memory for the string including the null terminator
+    char* str = (char*)krnl_malloc(length + 1);
+    if (str == NULL) {
+        return NULL; // Handle memory allocation failure
+    }
+
+    // Copy the string
+    for (int i = 0; i < length; ++i) {
+        str[i] = data[offset + i];
+    }
+    str[length] = '\0'; // Null-terminate the string
+
+    return str;
+}

@@ -1,0 +1,4 @@
+Dir <Obey$Dir>
+WimpSlot -min 2048k
+amu all THROWBACK=-throwback -f MakeFileDDE
+|amu debug THROWBACK=-throwback -f MakeFileDDE
