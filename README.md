@@ -28,13 +28,13 @@ DTBLib is open to contributions from the developer community. Enhancements, bug 
 
 The library is very easy to build. You just need to run the following command:
 
-To build with GCC on RISC OS (go in the src directory):
+To build with GCC on RISC OS (from the DTBLib directory):
 
 ```bash
 MkGCC
 ```
 
-To build with DDE on RISC OS (go in the src directory):
+To build with DDE on RISC OS (from the DTBLib directory):
 
 ```bash
 MkDDE
