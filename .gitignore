@@ -13,7 +13,11 @@ src/**/o/**
 src/**/so/**
 src/**/a/**
 src/**/oz/**
+src/**/od/**
+src/**/odz/**
 tests/**/o/**
 tests/**/so/**
 tests/**/a/**
+tests/**/od/**
 tests/**/oz/**
+tests/**/odz/**
