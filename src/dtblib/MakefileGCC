@@ -1,0 +1,75 @@
+# Variables
+LIB_NAME = dtblib
+MAIN_DIR = dtblib
+CC = gcc
+
+ifeq ($(OS),)
+  OS := RISC_OS
+endif
+
+# Set variables based on the detected OS
+ifeq ($(OS),Linux)
+  RM_CMD = rm -f
+  SHARED_EXT =so
+  LOCAL_DIR =.
+  DIR_SYM =/
+  UP_DIR=..
+  EXT_SYM =.
+  CFLAGS_SHARED = -fPIC
+  LDFLAGS_SHARED = -shared
+else ifeq ($(OS),Darwin) # macOS
+  RM_CMD = rm -f
+  SHARED_EXT =dylib
+  LOCAL_DIR =.
+  DIR_SYM =/
+  UP_DIR=..
+  EXT_SYM =.
+  CFLAGS_SHARED = -fPIC
+  LDFLAGS_SHARED = -dynamiclib
+else ifeq ($(OS),Windows)
+  RM_CMD = del
+  SHARED_EXT =dll
+  LOCAL_DIR =.
+  DIR_SYM =/
+  UP_DIR=..
+  EXT_SYM =.
+  CFLAGS_SHARED =
+  LDFLAGS_SHARED = -shared
+else ifeq ($(OS),RISC_OS)
+  RM_CMD = remove
+  SHARED_EXT =so
+  LOCAL_DIR =@
+  DIR_SYM =.
+  UP_DIR=^
+  EXT_SYM =/
+  CFLAGS_SHARED =
+  LDFLAGS_SHARED =
+else
+  $(error Unknown operating system: $(OS))
+endif
+
+# Source and object files
+SRC_FILES = $(wildcard $(LOCAL_DIR)$(DIR_SYM)*.c)
+OBJ_FILES = $(patsubst %.c,%.o,$(SRC_FILES))
+
+# Debugging
+$(info Source files: $(SRC_FILES))
+$(info Object files: $(OBJ_FILES))
+
+# Compiler flags
+CFLAGS := -Wall -Wextra -pedantic -std=c99 -flto -O2
+
+# Targets
+all: lib$(LIB_NAME)$(EXT_SYM)a lib$(LIB_NAME)$(EXT_SYM)$(SHARED_EXT)
+
+lib$(LIB_NAME).a: $(OBJ_FILES)
+	ar rcs $@ $^
+
+lib$(LIB_NAME)$(EXT_SYM)$(SHARED_EXT): $(OBJ_FILES)
+	$(CC) $(LDFLAGS_SHARED) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(CFLAGS_SHARED) -c $< -o $@
+
+clean:
+	$(RM_CMD) $(OBJ_FILES) lib$(LIB_NAME)$(EXT_SYM)a lib$(LIB_NAME)$(EXT_SYM)$(SHARED_EXT)

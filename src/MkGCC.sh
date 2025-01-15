@@ -21,4 +21,4 @@ cd ${current_dir}
 cat ${current_dir}/MakeFileGCC
 
 # Make the artifacts
-make static OS=`uname -s` -f ${current_dir}/MakefileGCC
+make all OS=`uname -s` -f ${current_dir}/MakefileGCC

@@ -47,8 +47,8 @@ LIB_DIR = libs
 # If needed add more libraries in the following format:
 # LIBS   = $(LIB_DIR)$(DIR_SYM)lib1 $(LIB_DIR)$(DIR_SYM)lib2 $(LIB_DIR)$(DIR_SYM)lib3
 LIBS     =
-LIB_NAME = DTBLib
-MAIN_DIR = DTBLib
+LIB_NAME = dtblib
+MAIN_DIR = dtblib
 MAIN_LIB = $(LIB_NAME)
 ifeq ($(OS),RISC_OS)
   MAIN_SRC = c.$(LIB_NAME)
