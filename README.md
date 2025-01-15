@@ -1,5 +1,7 @@
 # DTBLib: Device Tree Blob Parsing Library
 
+**Please note:** This library is still under development. It is not yet ready for use.
+
 **Overview:**
 
 DTBLib is a specialized library designed for reading and parsing Device Tree Blob (DTB) files. Developed in strict adherence to ANSI C standards, this library is distinct for its lack of dependencies on the Standard C Library (SCL). This unique attribute makes DTBLib particularly suited for use in environments where standard library support is unavailable or undesirable.
